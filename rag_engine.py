@@ -55,14 +55,6 @@ class RAGHelper:
     def __init__(self):
         # Using Google Embeddings
         self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-        if not os.path.exists(DB_PATH):
-            if os.environ.get("GOOGLE_API_KEY"):
-                print("Vector store not found. Building index now...")
-                from data_ingestion import ingest_data
-                ingest_data()
-            else:
-                print("Warning: Vector store not found and no API key available to build it.")
-        
         if os.path.exists(DB_PATH):
             self.vectorstore = Chroma(
                 persist_directory=DB_PATH, 
@@ -70,7 +62,7 @@ class RAGHelper:
             )
             self.retriever = self.vectorstore.as_retriever(
                 search_type="similarity",
-                search_kwargs={"k": 5}
+                search_kwargs={"k": 3}
             )
         else:
             self.vectorstore = None

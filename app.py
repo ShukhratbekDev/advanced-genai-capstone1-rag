@@ -9,17 +9,34 @@ import gradio as gr
 import os
 from rag_engine import RAGHelper
 
+# Pre-initialize RAG on Startup to avoid latency
+def initialize_rag():
+    print("--- Initializing RAG Engine ---")
+    if not os.path.exists("chroma_db_v3"):
+        if os.environ.get("GOOGLE_API_KEY"):
+            print("Database not found. Starting background ingestion...")
+            try:
+                from data_ingestion import ingest_data
+                ingest_data()
+            except Exception as e:
+                print(f"Startup Ingestion Failed: {e}")
+        else:
+            print("Warning: GOOGLE_API_KEY missing. Cannot build database.")
+    
+    # Pre-warm the solver
+    global rag_solver
+    try:
+        from rag_engine import RAGHelper
+        rag_solver = RAGHelper()
+        print("RAG Engine Ready.")
+    except Exception as e:
+        print(f"RAG Pre-warm Error: {e}")
+
 # Global Engine Instance
 rag_solver = None
 
 def get_solver():
     global rag_solver
-    if rag_solver is None:
-        try:
-            rag_solver = RAGHelper()
-        except Exception as e:
-            print(f"RAG Init Error: {e}")
-            return None
     return rag_solver
 
 def chat_logic(message, history, google_key, gh_token, gh_repo):
@@ -103,4 +120,5 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) 
     # `chat_logic` signature matches: (message, history, google, gh, gh)
 
 if __name__ == "__main__":
+    initialize_rag()
     demo.launch()
