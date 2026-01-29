@@ -2,10 +2,10 @@ import os
 from typing import List, Dict, Any, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain.tools import tool
+from langchain_core.tools import tool
 from dotenv import load_dotenv
 from github import Github
 
