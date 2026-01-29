@@ -11,3 +11,4 @@ beautifulsoup4
 unstructured
 huggingface_hub
 PyGithub
+pysqlite3-binary
