@@ -1,0 +1,19 @@
+# TechSolutions Support Policies
+
+## Contact Information
+- **Company Name**: TechSolutions Inc.
+- **Phone**: +1-800-555-0199
+- **Email**: support@techsolutions.fake
+- **Address**: 123 Innovation Dr, Tech City, TC 90210
+
+## Support Ticket Guidelines
+When creating a support ticket, please ensure the following information is provided:
+1. User Name
+2. User Email
+3. Summary of the issue
+4. Detailed description
+
+Our AI assistant is authorized to draft tickets on behalf of users if a solution cannot be found in the documentation.
+
+## Privacy Policy
+We value your privacy. All chat conversations are stored locally for quality assurance.

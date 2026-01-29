@@ -1,0 +1,13 @@
+langchain
+langchain-community
+langchain-google-genai
+langchain-chroma
+chromadb
+pypdf
+tiktoken
+gradio
+python-dotenv
+beautifulsoup4
+unstructured
+huggingface_hub
+PyGithub

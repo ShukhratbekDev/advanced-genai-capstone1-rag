@@ -1,15 +1,3 @@
----
-title: Advanced Genai Capstone1 Rag
-emoji: 🚀
-colorFrom: purple
-colorTo: gray
-sdk: gradio
-sdk_version: 6.5.1
-app_file: app.py
-pinned: false
-license: mit
----
-
 # Advanced Generative AI - Capstone Project 1 Report
 **Student**: Antigravity AI
 **Course**: Advanced Generative AI
@@ -20,7 +8,7 @@ This solution is a specific Customer Support RAG system designed for "TechSoluti
 ## 2. Technical Architecture
 - **Language**: Python 3.10
 - **Frameworks**: LangChain, ChromaDB, **Gradio**
-- **LLM**: Google Gemini 3 Flash Preview (via `langchain-google-genai`)
+- **LLM**: Google Gemini 3 Flash Preview (model=`gemini-3-flash-preview`)
 - **Embeddings**: Google Generative AI Embeddings (`models/embedding-001`)
 - **Integration**: GitHub API (via `PyGithub`) for ticket creation.
 
@@ -43,16 +31,22 @@ This solution is a specific Customer Support RAG system designed for "TechSoluti
 ## 4. Deployment (Hugging Face Spaces)
 The solution is designed for **Gradio** Spaces.
 
-### 1. Automated
-Run `python deploy_to_hf.py`
+1.  **Run Deployment Script**: 
+    ```bash
+    pip install huggingface_hub
+    python deploy_to_hf.py
+    ```
 
-### 2. Manual
-Upload all files to the Space.
+2.  **Manual Method**:
+    -   Create a new Space (Select **Gradio** SDK).
+    -   Upload all files (`app.py`, `rag_engine.py`, `data_ingestion.py`, `requirements.txt`, `data/`).
 
-### 3. Secrets
-Set `GOOGLE_API_KEY`, and optionally `GITHUB_TOKEN`/`GITHUB_REPO`.
+3.  **Secrets**: 
+    -   Add `GOOGLE_API_KEY` in Spaces Settings.
+    -   (Optional) Add `GITHUB_TOKEN` and `GITHUB_REPO`.
 
 ## 5. Verification
+To verify locally:
 1.  `pip install -r requirements.txt`
 2.  `python data_ingestion.py`
-3.  `python app.py`
+3.  `python app.py` (Launches a local Gradio URL).
