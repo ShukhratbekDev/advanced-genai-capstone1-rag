@@ -1,6 +1,7 @@
 import os
 from typing import List, Dict, Any, Optional
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -53,7 +54,7 @@ def create_support_ticket(user_name: str, user_email: str, issue_summary: str, i
 class RAGHelper:
     def __init__(self):
         # Using Google Embeddings
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         if not os.path.exists(DB_PATH):
             if os.environ.get("GOOGLE_API_KEY"):
                 print("Vector store not found. Building index now...")

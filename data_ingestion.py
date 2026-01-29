@@ -4,7 +4,7 @@ from typing import List
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from dotenv import load_dotenv
 
@@ -59,7 +59,7 @@ def ingest_data():
 
     print("Creating vector store...")
     # Initialize Google Embeddings (embedding-001 is the standard model)
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     
     # Create and persist ChromaDB
     # Note: Chroma is "serverless" in the sense it runs embedded without a separate server process for this scale
