@@ -19,9 +19,9 @@ This project processes technical documentation (Python manuals) and provides an 
 - [x] **Context Awareness**: System prompt includes "TechSolutions Inc." details.
 
 ### Data Requirements
-- [x] **3+ Documents**: `data/` folder contains multiple PDF manuals (Python Library, Tutorial, etc.).
-- [x] **2+ PDFs**: All ingested files are PDFs.
-- [x] **Large Document**: Included `library.pdf` (Standard Python Library Reference) which is >400 pages.
+- [x] **3 Documents**: `data/` folder contains exactly 3 files: `library.pdf`, `tutorial.pdf`, and `company_policies.txt`.
+- [x] **2 PDFs**: 2 documents are PDFs.
+- [x] **Large Document**: `library.pdf` (Standard Python Library Reference) which is >400 pages.
 
 ### Technical Requirements
 - [x] **Python**: Fully written in Python 3.
