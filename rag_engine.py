@@ -12,7 +12,7 @@ from github import Github
 
 load_dotenv()
 
-DB_PATH = "chroma_db"
+DB_PATH = "chroma_db_v2"
 
 # Global fallback for environment variables
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")

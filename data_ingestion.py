@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATA_PATH = "data"
-DB_PATH = "chroma_db"
+DB_PATH = "chroma_db_v2"
 
 def load_documents() -> List[Document]:
     documents = []

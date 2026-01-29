@@ -69,8 +69,8 @@ def chat_logic(message, history, google_key, gh_token, gh_repo):
         yield f"❌ Error during generation: {str(e)}"
 
 # --- UI Setup ---
-with gr.Blocks(title="TechSolutions Support AI", theme=gr.themes.Soft()) as demo:
-    gr.Markdown("# 🤖 TechSolutions Customer Support AI")
+with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) as demo:
+    gr.Markdown("# 🤖 TechSolutions Customer Support AI v1.1.0")
     gr.Markdown("Create support tickets on GitHub, query manuals, and get help 24/7.")
     
     with gr.Accordion("⚙️ Settings (API Keys)", open=True):
