@@ -17,11 +17,14 @@ def get_solver():
 
 def chat_logic(message, history, google_key, gh_token, gh_repo):
     # 1. Configuration
-    if not google_key:
-        yield "⚠️ Please enter your Google API Key in the settings below to start."
-        return
+    # Prioritize UI input, then env var
+    if google_key:
+        os.environ["GOOGLE_API_KEY"] = google_key
+    
+    if not os.environ.get("GOOGLE_API_KEY"):
+         yield "⚠️ Please enter your Google API Key in the settings below or set GOOGLE_API_KEY in Space Secrets."
+         return
 
-    os.environ["GOOGLE_API_KEY"] = google_key
     if gh_token:
         os.environ["GITHUB_TOKEN"] = gh_token
     if gh_repo:
@@ -66,18 +69,18 @@ with gr.Blocks(title="TechSolutions Support AI", theme=gr.themes.Soft()) as demo
     with gr.Accordion("⚙️ Settings (API Keys)", open=True):
         with gr.Row():
             google_key_input = gr.Textbox(
-                label="Google API Key (Required)",
-                placeholder="AIza...",
+                label="Google API Key (Optional if IGNORE_ENV is not set)",
+                placeholder="Enter key or use Space Secret",
                 type="password"
             )
             gh_token_input = gr.Textbox(
                 label="GitHub Token (Optional)",
-                placeholder="For ticket creation...",
+                placeholder="Enter token or use Space Secret",
                 type="password"
             )
             gh_repo_input = gr.Textbox(
                 label="GitHub Repo (Optional)",
-                placeholder="username/repo"
+                placeholder="username/repo (or use Space Secret)"
             )
 
     chat_interface = gr.ChatInterface(
