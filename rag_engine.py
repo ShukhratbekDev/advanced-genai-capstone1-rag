@@ -137,7 +137,12 @@ class RAGHelper:
                      final_tool_calls.extend(chunk.tool_calls)
                 
                 if chunk.content:
-                    yield chunk.content
+                    if isinstance(chunk.content, list):
+                        # Join text parts if it's a list (common in some complex LLM outputs)
+                        content_str = "".join([c.get("text", str(c)) if isinstance(c, dict) else str(c) for c in chunk.content])
+                        yield content_str
+                    else:
+                        yield str(chunk.content)
 
             # 4. Handle Tool Execution
             if final_tool_calls:
