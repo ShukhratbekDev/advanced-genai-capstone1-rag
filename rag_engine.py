@@ -77,7 +77,7 @@ class RAGHelper:
             self.retriever = None
 
         # User requested specific model
-        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", temperature=0)
         self.llm_with_tools = self.llm.bind_tools([create_support_ticket])
 
         # System prompt with Company Info and Citation instructions
