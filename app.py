@@ -83,7 +83,7 @@ with gr.Blocks(title="TechSolutions Support AI", theme=gr.themes.Soft()) as demo
     chat_interface = gr.ChatInterface(
         fn=chat_logic,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input],
-        type="messages", # Use new messages format if supported, else "tuples". 
+ 
         # Actually standard ChatInterface passes (message, history, *additional_inputs)
         # We'll use default mode which passes history as list of lists
     )
