@@ -49,9 +49,9 @@ def chat_logic(message, history, google_key, gh_token, gh_repo):
          yield "⚠️ Please enter your Google API Key in the settings below or set GOOGLE_API_KEY in Space Secrets."
          return
 
-    if gh_token:
+    if gh_token and gh_token.strip():
         os.environ["GITHUB_TOKEN"] = gh_token
-    if gh_repo:
+    if gh_repo and gh_repo.strip():
         os.environ["GITHUB_REPO"] = gh_repo
 
     # 2. Initialize / Get Engine
