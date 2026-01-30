@@ -174,6 +174,8 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
         chatbot=chatbot_comp,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
         textbox=gr.Textbox(placeholder="Ask a question or request a support ticket...", container=False, scale=7),
+        submit_btn="✈️",
+        stop_btn="⏹️",
         # Examples as a list of lists to match the number of inputs (message + additional_inputs)
         examples=[
             ["How do I use decimal floating point in Python?", None, None, None, "gemini-2.5-flash"],
