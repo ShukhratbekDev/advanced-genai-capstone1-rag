@@ -26,6 +26,21 @@ import gradio as gr
 import os
 from rag_engine import RAGHelper
 
+# Snapshot original environment to allow reverting/fallback
+ORIGINAL_ENV = {
+    "GOOGLE_API_KEY": os.environ.get("GOOGLE_API_KEY"),
+    "GITHUB_TOKEN": os.environ.get("GITHUB_TOKEN"),
+    "GITHUB_REPO": os.environ.get("GITHUB_REPO")
+}
+
+def get_effective_config(ui_google_key, ui_gh_token, ui_gh_repo):
+    """Priority: UI (if not empty) > ORIGINAL_ENV (Secrets)"""
+    return {
+        "GOOGLE_API_KEY": ui_google_key.strip() if (ui_google_key and ui_google_key.strip()) else ORIGINAL_ENV["GOOGLE_API_KEY"],
+        "GITHUB_TOKEN": ui_gh_token.strip() if (ui_gh_token and ui_gh_token.strip()) else ORIGINAL_ENV["GITHUB_TOKEN"],
+        "GITHUB_REPO": ui_gh_repo.strip() if (ui_gh_repo and ui_gh_repo.strip()) else ORIGINAL_ENV["GITHUB_REPO"]
+    }
+
 # Pre-initialize RAG on Startup to avoid latency
 def initialize_rag(model_name: str = "gemini-2.0-flash"):
     print(f"--- Initializing RAG Engine with {model_name} ---")
@@ -54,52 +69,49 @@ rag_solver = None
 active_model = None
 active_google_key = None
 
-def get_solver(model_name: str, google_key: str = None):
+def get_solver(model_name: str, effective_google_key: str):
     global rag_solver, active_model, active_google_key
-    
-    # Check if we need to re-initialize due to model change or API key change
-    # If google_key is provided in UI, it overrides env var
-    effective_key = google_key if (google_key and google_key.strip()) else os.environ.get("GOOGLE_API_KEY")
     
     needs_init = (rag_solver is None or 
                   model_name != active_model or 
-                  effective_key != active_google_key)
+                  effective_google_key != active_google_key)
     
     if needs_init:
         print(f"--- Re-initializing RAG Engine: Model={model_name} ---")
-        if google_key and google_key.strip():
-            os.environ["GOOGLE_API_KEY"] = google_key
+        # Ensure the env var is set for current and downstream (tools) use
+        if effective_google_key:
+            os.environ["GOOGLE_API_KEY"] = effective_google_key
             
         try:
             rag_solver = RAGHelper(model_name=model_name)
             active_model = model_name
-            active_google_key = effective_key
+            active_google_key = effective_google_key
             print(f"RAG Engine successfully switched to {model_name}.")
         except Exception as e:
             print(f"Failed to switch model/key: {e}")
-            # If it fails, keep the old solver if it exists, otherwise return None
             if rag_solver is None:
                 return None
     return rag_solver
 
 def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
-    # 1. Configuration
-    if google_key:
-        os.environ["GOOGLE_API_KEY"] = google_key
+    # 1. Resolve Configuration Hierarchy (UI > Secrets)
+    config = get_effective_config(google_key, gh_token, gh_repo)
+    
+    # Sync environment so tools and LangChain see the high-priority values
+    for key, val in config.items():
+        if val:
+            os.environ[key] = val
+        else:
+            os.environ.pop(key, None) # Remove if both UI and Secret are missing
     
     if not os.environ.get("GOOGLE_API_KEY"):
          yield "⚠️ Please enter your Google API Key in the settings below or set GOOGLE_API_KEY in Space Secrets."
          return
 
-    if gh_token and gh_token.strip():
-        os.environ["GITHUB_TOKEN"] = gh_token
-    if gh_repo and gh_repo.strip():
-        os.environ["GITHUB_REPO"] = gh_repo
-
-    # 2. Get Engine (handles dynamic switching of model/key)
-    solver = get_solver(model_name, google_key)
+    # 2. Get Engine (handles dynamic switching)
+    solver = get_solver(model_name, config["GOOGLE_API_KEY"])
     if not solver:
-        yield "❌ System Error: Failed to initialize AI Engine with provided configuration. Please check your API Key."
+        yield "❌ System Error: Failed to initialize AI Engine. Please check your API Key."
         return
 
     # 3. Generate Response
