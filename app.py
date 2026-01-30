@@ -10,9 +10,9 @@ import os
 from rag_engine import RAGHelper
 
 # Pre-initialize RAG on Startup to avoid latency
-def initialize_rag():
-    print("--- Initializing RAG Engine ---")
-    if not os.path.exists("chroma_db_v3"):
+def initialize_rag(model_name: str = "gemini-2.5-flash"):
+    print(f"--- Initializing RAG Engine with {model_name} ---")
+    if not os.path.exists("chroma_db_v4"):
         if os.environ.get("GOOGLE_API_KEY"):
             print("Database not found. Starting background ingestion...")
             try:
@@ -27,19 +27,25 @@ def initialize_rag():
     global rag_solver
     try:
         from rag_engine import RAGHelper
-        rag_solver = RAGHelper()
-        print("RAG Engine Ready.")
+        rag_solver = RAGHelper(model_name=model_name)
+        print(f"RAG Engine Ready with {model_name}.")
     except Exception as e:
         print(f"RAG Pre-warm Error: {e}")
 
 # Global Engine Instance
 rag_solver = None
 
-def get_solver():
+def get_solver(model_name: str = "gemini-2.5-flash"):
     global rag_solver
+    if rag_solver is None or rag_solver.model_name != model_name:
+        print(f"Switching model to {model_name}...")
+        try:
+            rag_solver = RAGHelper(model_name=model_name)
+        except Exception as e:
+            print(f"Failed to switch model: {e}")
     return rag_solver
 
-def chat_logic(message, history, google_key, gh_token, gh_repo):
+def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
     # 1. Configuration
     # Prioritize UI input, then env var
     if google_key:
@@ -55,7 +61,7 @@ def chat_logic(message, history, google_key, gh_token, gh_repo):
         os.environ["GITHUB_REPO"] = gh_repo
 
     # 2. Initialize / Get Engine
-    solver = get_solver()
+    solver = get_solver(model_name)
     if not solver:
         # Try re-init if key was just provided
         try:
@@ -115,15 +121,21 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
                 placeholder="username/repo (Optional)",
                 info="Format: 'owner/repository'"
             )
+            model_dropdown = gr.Dropdown(
+                choices=["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash-preview"],
+                value="gemini-2.5-flash",
+                label="AI Model Selection",
+                info="Select the Gemini model to use for the response."
+            )
 
     chat_interface = gr.ChatInterface(
         fn=chat_logic,
-        additional_inputs=[google_key_input, gh_token_input, gh_repo_input],
+        additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
         examples=[
-            ["How do I use decimal floating point in Python?", "", "", ""],
-            ["What does the tutorial say about defining functions?", "", "", ""],
-            ["I have a bug in my code. Please create a support ticket for me. My name is Alex, email alex@example.com, and the issue is 'List index out of range'.", "", "", ""],
-            ["Who do you work for and what is your contact info?", "", "", ""]
+            ["How do I use decimal floating point in Python?", "", "", "", "gemini-2.5-flash"],
+            ["What does the tutorial say about defining functions?", "", "", "", "gemini-2.5-flash"],
+            ["I have a bug in my code. Please create a support ticket for me. My name is Alex, email alex@example.com, and the issue is 'List index out of range'.", "", "", "", "gemini-2.5-flash"],
+            ["Who do you work for and what is your contact info?", "", "", "", "gemini-2.5-flash"]
         ],
         cache_examples=False,
     )

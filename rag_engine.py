@@ -58,7 +58,8 @@ def create_support_ticket(user_name: str, user_email: str, issue_summary: str, i
 
 # --- 2. RAG Chain Setup ---
 class RAGHelper:
-    def __init__(self):
+    def __init__(self, model_name: str = "gemini-2.0-flash"):
+        self.model_name = model_name
         # Using Google Embeddings
         self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         if os.path.exists(DB_PATH):
@@ -74,8 +75,8 @@ class RAGHelper:
             self.vectorstore = None
             self.retriever = None
 
-        # User requested specific model
-        self.llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0)
+        # model selection
+        self.llm = ChatGoogleGenerativeAI(model=self.model_name, temperature=0)
         self.llm_with_tools = self.llm.bind_tools([create_support_ticket])
 
         # System prompt with Company Info and Citation instructions
