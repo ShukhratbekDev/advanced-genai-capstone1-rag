@@ -108,7 +108,7 @@ def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
         yield f"❌ Error during generation: {str(e)}"
 
 # --- UI Setup ---
-with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) as demo:
+with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     gr.Markdown("# 🤖 TechSolutions Customer Support AI v1.1.0")
     gr.Markdown("Create support tickets on GitHub, query manuals, and get help 24/7.")
     
@@ -137,12 +137,10 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) 
             info="Select the Gemini model to use."
         )
 
-    # Define the Chatbot
+    # Simplified Chatbot to avoid version-specific argument errors
     chatbot_comp = gr.Chatbot(
         placeholder="### 🛟 TechSolutions Support Assistant\nAsk about documentation, create tickets, or get company info.",
-        height=550,
-        type="messages",
-        render=False # We render it inside ChatInterface
+        height=550
     )
 
     chat_interface = gr.ChatInterface(
@@ -150,22 +148,17 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) 
         chatbot=chatbot_comp,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
         textbox=gr.Textbox(placeholder="Ask a question or request a support ticket...", container=False, scale=7),
-        # In Gradio 5, when additional_inputs are used, examples must match the input signature
+        # Examples as a list of lists to match the number of inputs (message + additional_inputs)
         examples=[
-            ["How do I use decimal floating point in Python?", "", "", "", "gemini-2.5-flash"],
-            ["Who do you work for and what is your contact info?", "", "", "", "gemini-2.5-flash"],
-            ["What does the tutorial say about defining functions?", "", "", "", "gemini-2.5-flash"],
-            ["Create a support ticket. My email is user@email.com and the issue is 'Timeout'.", "", "", "", "gemini-2.5-flash"]
+            ["How do I use decimal floating point in Python?", None, None, None, "gemini-2.5-flash"],
+            ["Who do you work for and what is your contact info?", None, None, None, "gemini-2.5-flash"],
+            ["What does the tutorial say about defining functions?", None, None, None, "gemini-2.5-flash"],
+            ["Create a support ticket. My email is user@email.com and the issue is 'Timeout'.", None, None, None, "gemini-2.5-flash"]
         ],
-        type="messages",
         cache_examples=False,
     )
     
-    # Customizing ChatInterface is tricky with additional inputs being dynamic properly.
-    # The above works, but 'history' arg comes second.
-    # `chat_logic` signature matches: (message, history, google, gh, gh)
-
 if __name__ == "__main__":
     initialize_rag()
-    # Disable SSR for stability as requested by the environment context
+    # Move theme to launch to resolve Gradio 5+ warning and disable SSR for stability
     demo.launch(theme=gr.themes.Soft(), ssr_mode=False)
