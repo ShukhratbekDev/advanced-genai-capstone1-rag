@@ -90,7 +90,10 @@ class RAGHelper:
         1. Answer the user's question using ONLY the provided context.
         2. If the answer is found in the context, you MUST cite the document name and page number as [Source: file_name, Page: X].
         3. If the answer is NOT found in the context, strictly state that you couldn't find the answer and suggest creating a support ticket.
-        4. If the user asks to create a ticket, collect necessary details (Name, Email, Summary, Description) if not provided, and call the create_support_ticket tool.
+        4. If the user asks to create a ticket, be proactive. If they provide some details (like email and issue), use those. For missing details:
+           - Use "User" or "Valued Customer" as the name if not provided.
+           - Use the provided summary as the description if the description is missing.
+           - Do NOT ask follow-up questions if you have enough to reasonably create a ticket. Just call the create_support_ticket tool immediately.
         """
 
     def format_docs(self, docs):
