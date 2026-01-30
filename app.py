@@ -70,9 +70,14 @@ def chat_logic(message, history, google_key, gh_token, gh_repo):
     # Convert history for RAG context (list of dicts or tuples? rag_engine expects dicts)
     # Gradio history is [[user, bot], [user, bot]]
     chat_history_dicts = []
-    for user_msg, bot_msg in history:
-        chat_history_dicts.append({"role": "user", "content": user_msg})
-        chat_history_dicts.append({"role": "assistant", "content": bot_msg})
+    for item in history:
+        if isinstance(item, dict):
+            # Format: {"role": "user", "content": "..."}
+            chat_history_dicts.append(item)
+        elif isinstance(item, (list, tuple)) and len(item) >= 2:
+            # Format: [user_msg, bot_msg]
+            chat_history_dicts.append({"role": "user", "content": item[0]})
+            chat_history_dicts.append({"role": "assistant", "content": item[1]})
     
     try:
         response_generator = solver.get_response_stream(message, chat_history_dicts)
@@ -128,4 +133,5 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
 
 if __name__ == "__main__":
     initialize_rag()
-    demo.launch(theme=gr.themes.Soft())
+    # Disable SSR for stability as requested by the environment context
+    demo.launch(theme=gr.themes.Soft(), ssr_mode=False)
