@@ -128,11 +128,22 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
                 info="Select the Gemini model to use for the response."
             )
 
-    gr.Markdown("### 💡 Quick Tips:\n- Use the examples below the chat to get started quickly.\n- To create a GitHub ticket, mention your email and the issue details.")
+    # Define the Chatbot with a custom placeholder for hints
+    chatbot_comp = gr.Chatbot(
+        placeholder="### 💡 TechSolutions Support Suggestions\n"
+                    "- *How do I use decimal floating point in Python?*\n"
+                    "- *What does the tutorial say about defining functions?*\n"
+                    "- *Create a support ticket for issue 'Library path error'.*\n"
+                    "- *Who do you work for and what is your contact info?*\n\n"
+                    "**Click any example below to get started!**",
+        height=450
+    )
 
     chat_interface = gr.ChatInterface(
         fn=chat_logic,
+        chatbot=chatbot_comp,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
+        additional_inputs_accordion=gr.Accordion("🆔 API & Model Configuration", open=False),
         textbox=gr.Textbox(placeholder="Ask a question about the documentation or request a support ticket...", container=False, scale=7),
         examples=[
             ["How do I use decimal floating point in Python?", "", "", "", "gemini-2.5-flash"],
