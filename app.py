@@ -42,7 +42,7 @@ def get_effective_config(ui_google_key, ui_gh_token, ui_gh_repo):
     }
 
 # Pre-initialize RAG on Startup to avoid latency
-def initialize_rag(model_name: str = "gemini-2.0-flash"):
+def initialize_rag(model_name: str = "gemini-2.5-flash"):
     print(f"--- Initializing RAG Engine with {model_name} ---")
     if not os.path.exists("chroma_db_v4"):
         if os.environ.get("GOOGLE_API_KEY"):
