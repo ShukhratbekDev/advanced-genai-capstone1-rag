@@ -101,41 +101,38 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     gr.Markdown("# 🤖 TechSolutions Customer Support AI v1.1.0")
     gr.Markdown("Create support tickets on GitHub, query manuals, and get help 24/7.")
     
-    with gr.Accordion("⚙️ Settings (API Keys)", open=False):
-        gr.Markdown("*Note: If you have set these in Space Secrets, you can leave these blank.*")
-        with gr.Row():
-            google_key_input = gr.Textbox(
-                label="Google API Key",
-                placeholder="AIza... (Optional if Secret is set)",
-                type="password",
-                info="Required for Gemini 2.0 Flash and Embeddings."
-            )
-            gh_token_input = gr.Textbox(
-                label="GitHub Token",
-                placeholder="ghp_... (Optional)",
-                type="password",
-                info="Needed only for creating support tickets."
-            )
-            gh_repo_input = gr.Textbox(
-                label="GitHub Repo",
-                placeholder="username/repo (Optional)",
-                info="Format: 'owner/repository'"
-            )
-            model_dropdown = gr.Dropdown(
-                choices=["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash-preview"],
-                value="gemini-2.5-flash",
-                label="AI Model Selection",
-                info="Select the Gemini model to use for the response."
-            )
+    # Define inputs for the ChatInterface
+    google_key_input = gr.Textbox(
+        label="Google API Key",
+        placeholder="AIza... (Optional if Secret is set)",
+        type="password",
+        info="Required for Gemini 2.0 Flash and Embeddings."
+    )
+    gh_token_input = gr.Textbox(
+        label="GitHub Token",
+        placeholder="ghp_... (Optional)",
+        type="password",
+        info="Needed only for creating support tickets."
+    )
+    gh_repo_input = gr.Textbox(
+        label="GitHub Repo",
+        placeholder="username/repo (Optional)",
+        info="Format: 'owner/repository'"
+    )
+    model_dropdown = gr.Dropdown(
+        choices=["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash-preview"],
+        value="gemini-2.5-flash",
+        label="AI Model Selection",
+        info="Select the Gemini model to use for the response."
+    )
 
     # Define the Chatbot with a custom placeholder for hints
     chatbot_comp = gr.Chatbot(
-        placeholder="### 💡 TechSolutions Support Suggestions\n"
-                    "- *How do I use decimal floating point in Python?*\n"
-                    "- *What does the tutorial say about defining functions?*\n"
-                    "- *Create a support ticket for issue 'Library path error'.*\n"
-                    "- *Who do you work for and what is your contact info?*\n\n"
-                    "**Click any example below to get started!**",
+        placeholder="### 💡 TechSolutions Support Assistant\n"
+                    "Select a task below or type your question to get started.\n\n"
+                    "- **RAG Query**: Ask about the Python documentation.\n"
+                    "- **Ticket Support**: Request help and I'll create a GitHub issue.\n"
+                    "- **Company Info**: Learn about TechSolutions Inc.",
         height=450
     )
 
@@ -143,13 +140,12 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
         fn=chat_logic,
         chatbot=chatbot_comp,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
-        additional_inputs_accordion=gr.Accordion("🆔 API & Model Configuration", open=False),
-        textbox=gr.Textbox(placeholder="Ask a question about the documentation or request a support ticket...", container=False, scale=7),
+        additional_inputs_accordion=gr.Accordion("⚙️ Settings & API Configuration", open=False),
+        textbox=gr.Textbox(placeholder="Ask a question or request a support ticket...", container=False, scale=7),
         examples=[
-            ["How do I use decimal floating point in Python?", "", "", "", "gemini-2.5-flash"],
-            ["What does the tutorial say about defining functions?", "", "", "", "gemini-2.5-flash"],
-            ["I'd like to create a support ticket. My email is user@example.com and the issue is 'Connection timeout'.", "", "", "", "gemini-2.5-flash"],
-            ["Who do you work for and what is your contact info?", "", "", "", "gemini-2.5-flash"]
+            ["(RAG Query) How do I use decimal floating point in Python?", "", "", "", "gemini-2.5-flash"],
+            ["(Ticket Support) I have an issue with my code. My email is alex@example.com and the issue is 'Path not found error'.", "", "", "", "gemini-2.5-flash"],
+            ["(Company Info) Who do you work for and what is your contact info?", "", "", "", "gemini-2.5-flash"]
         ],
         cache_examples=False,
     )
