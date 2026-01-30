@@ -28,10 +28,13 @@ def create_support_ticket(user_name: str, user_email: str, issue_summary: str, i
     token = os.environ.get("GITHUB_TOKEN")
     repo_name = os.environ.get("GITHUB_REPO")
 
-    print(f"!!! CREATING TICKET attempt for {user_email} !!!")
-    
     if not token or not repo_name:
-        return f"Error: GitHub configuration missing. Please start the chat with GITHUB_TOKEN and GITHUB_REPO set. Mock Ticket ID: TICKET-{hash(issue_summary) % 10000}"
+        return f"Error: GitHub configuration missing. Required: GITHUB_TOKEN and GITHUB_REPO. (Current Repo: {repo_name})"
+
+    # Clean repo name in case a full URL was pasted
+    repo_name = repo_name.replace("https://github.com/", "").strip("/")
+    
+    print(f"!!! CREATING TICKET in {repo_name} for {user_email} !!!")
 
     try:
         g = Github(token)
