@@ -163,20 +163,32 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
             info="Select the Gemini model to use."
         )
 
-    # Simplified Chatbot to avoid version-specific argument errors
+    # Simplified Chatbot
     chatbot_comp = gr.Chatbot(
         placeholder="### 🛟 TechSolutions Support Assistant\nAsk about documentation, create tickets, or get company info.",
         height=550
+    )
+
+    # ChatGPT-style suggestions (buttons above the input)
+    with gr.Row():
+        suggestion_1 = gr.Button("Floating point in Python?", size="sm", variant="secondary")
+        suggestion_2 = gr.Button("Create support ticket", size="sm", variant="secondary")
+        suggestion_3 = gr.Button("Company contact info", size="sm", variant="secondary")
+        suggestion_4 = gr.Button("Defining functions", size="sm", variant="secondary")
+
+    chat_input = gr.Textbox(
+        placeholder="Ask a question or request a support ticket...", 
+        container=True, # MUST be True to show buttons
+        scale=7
     )
 
     chat_interface = gr.ChatInterface(
         fn=chat_logic,
         chatbot=chatbot_comp,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
-        textbox=gr.Textbox(placeholder="Ask a question or request a support ticket...", container=False, scale=7),
+        textbox=chat_input,
         submit_btn="✈️",
         stop_btn="⏹️",
-        # Examples as a list of lists to match the number of inputs (message + additional_inputs)
         examples=[
             ["How do I use decimal floating point in Python?", None, None, None, "gemini-2.5-flash"],
             ["Who do you work for and what is your contact info?", None, None, None, "gemini-2.5-flash"],
@@ -185,6 +197,15 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
         ],
         cache_examples=False,
     )
+
+    # Wire up the suggestion buttons
+    def set_example(text):
+        return text
+
+    suggestion_1.click(fn=lambda: "How do I use decimal floating point in Python?", outputs=chat_input)
+    suggestion_2.click(fn=lambda: "Create a support ticket. My email is user@email.com and the issue is 'Timeout'.", outputs=chat_input)
+    suggestion_3.click(fn=lambda: "Who do you work for and what is your contact info?", outputs=chat_input)
+    suggestion_4.click(fn=lambda: "What does the tutorial say about defining functions?", outputs=chat_input)
     
 if __name__ == "__main__":
     initialize_rag()
