@@ -90,29 +90,37 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) 
     gr.Markdown("# 🤖 TechSolutions Customer Support AI v1.1.0")
     gr.Markdown("Create support tickets on GitHub, query manuals, and get help 24/7.")
     
-    with gr.Accordion("⚙️ Settings (API Keys)", open=True):
+    with gr.Accordion("⚙️ Settings (API Keys)", open=False):
+        gr.Markdown("*Note: If you have set these in Space Secrets, you can leave these blank.*")
         with gr.Row():
             google_key_input = gr.Textbox(
-                label="Google API Key (Optional if IGNORE_ENV is not set)",
-                placeholder="Enter key or use Space Secret",
-                type="password"
+                label="Google API Key",
+                placeholder="AIza... (Optional if Secret is set)",
+                type="password",
+                info="Required for Gemini 2.0 Flash and Embeddings."
             )
             gh_token_input = gr.Textbox(
-                label="GitHub Token (Optional)",
-                placeholder="Enter token or use Space Secret",
-                type="password"
+                label="GitHub Token",
+                placeholder="ghp_... (Optional)",
+                type="password",
+                info="Needed only for creating support tickets."
             )
             gh_repo_input = gr.Textbox(
-                label="GitHub Repo (Optional)",
-                placeholder="username/repo (or use Space Secret)"
+                label="GitHub Repo",
+                placeholder="username/repo (Optional)",
+                info="Format: 'owner/repository'"
             )
 
     chat_interface = gr.ChatInterface(
         fn=chat_logic,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input],
- 
-        # Actually standard ChatInterface passes (message, history, *additional_inputs)
-        # We'll use default mode which passes history as list of lists
+        examples=[
+            ["How do I use decimal floating point in Python?"],
+            ["What does the tutorial say about defining functions?"],
+            ["I have a bug in my code. Please create a support ticket for me. My name is Alex, email alex@example.com, and the issue is 'List index out of range'."],
+            ["Who do you work for and what is your contact info?"]
+        ],
+        placeholder="Ask a question about the documentation or request a support ticket...",
     )
     
     # Customizing ChatInterface is tricky with additional inputs being dynamic properly.
