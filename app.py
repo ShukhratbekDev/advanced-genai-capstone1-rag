@@ -86,7 +86,7 @@ def chat_logic(message, history, google_key, gh_token, gh_repo):
         yield f"❌ Error during generation: {str(e)}"
 
 # --- UI Setup ---
-with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) as demo:
+with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     gr.Markdown("# 🤖 TechSolutions Customer Support AI v1.1.0")
     gr.Markdown("Create support tickets on GitHub, query manuals, and get help 24/7.")
     
@@ -119,8 +119,7 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) 
             ["What does the tutorial say about defining functions?"],
             ["I have a bug in my code. Please create a support ticket for me. My name is Alex, email alex@example.com, and the issue is 'List index out of range'."],
             ["Who do you work for and what is your contact info?"]
-        ],
-        placeholder="Ask a question about the documentation or request a support ticket...",
+        ]
     )
     
     # Customizing ChatInterface is tricky with additional inputs being dynamic properly.
@@ -129,4 +128,4 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) 
 
 if __name__ == "__main__":
     initialize_rag()
-    demo.launch()
+    demo.launch(theme=gr.themes.Soft())
