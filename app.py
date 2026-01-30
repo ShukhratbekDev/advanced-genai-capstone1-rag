@@ -49,18 +49,37 @@ def initialize_rag(model_name: str = "gemini-2.0-flash"):
     except Exception as e:
         print(f"RAG Pre-warm Error: {e}")
 
-# Global Engine Instance
+# Global state to track active configuration
 rag_solver = None
+active_model = None
+active_google_key = None
 
-def get_solver(model_name: str = "gemini-2.5-flash"):
-    global rag_solver
-    # Ensure model names match (careful with version strings)
-    if rag_solver is None or rag_solver.model_name not in [model_name, "gemini-2.0-flash"]:
-        print(f"Switching model to {model_name}...")
+def get_solver(model_name: str, google_key: str = None):
+    global rag_solver, active_model, active_google_key
+    
+    # Check if we need to re-initialize due to model change or API key change
+    # If google_key is provided in UI, it overrides env var
+    effective_key = google_key if (google_key and google_key.strip()) else os.environ.get("GOOGLE_API_KEY")
+    
+    needs_init = (rag_solver is None or 
+                  model_name != active_model or 
+                  effective_key != active_google_key)
+    
+    if needs_init:
+        print(f"--- Re-initializing RAG Engine: Model={model_name} ---")
+        if google_key and google_key.strip():
+            os.environ["GOOGLE_API_KEY"] = google_key
+            
         try:
             rag_solver = RAGHelper(model_name=model_name)
+            active_model = model_name
+            active_google_key = effective_key
+            print(f"RAG Engine successfully switched to {model_name}.")
         except Exception as e:
-            print(f"Failed to switch model: {e}")
+            print(f"Failed to switch model/key: {e}")
+            # If it fails, keep the old solver if it exists, otherwise return None
+            if rag_solver is None:
+                return None
     return rag_solver
 
 def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
@@ -77,16 +96,11 @@ def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
     if gh_repo and gh_repo.strip():
         os.environ["GITHUB_REPO"] = gh_repo
 
-    # 2. Initialize / Get Engine
-    solver = get_solver(model_name)
+    # 2. Get Engine (handles dynamic switching of model/key)
+    solver = get_solver(model_name, google_key)
     if not solver:
-        try:
-            global rag_solver
-            rag_solver = RAGHelper(model_name=model_name)
-            solver = rag_solver
-        except Exception as e:
-            yield f"❌ System Error: Failed to initialize AI Engine. {e}"
-            return
+        yield "❌ System Error: Failed to initialize AI Engine with provided configuration. Please check your API Key."
+        return
 
     # 3. Generate Response
     # Gradio 'history' with type="messages"
