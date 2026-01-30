@@ -5,12 +5,29 @@ try:
 except ImportError:
     pass
 
+# Patch for Python 3.13 asyncio issue with Gradio/Selectors
+import asyncio
+import selectors
+
+if sys.version_info >= (3, 13):
+    # This is a workaround for the 'Invalid file descriptor: -1' error on shutdown in 3.13
+    original_remove_reader = selectors.BaseSelector._remove_reader if hasattr(selectors.BaseSelector, "_remove_reader") else None
+    
+    def patched_remove_reader(self, fd):
+        try:
+            return original_remove_reader(self, fd)
+        except (ValueError, OSError):
+            pass
+
+    if original_remove_reader:
+        selectors.BaseSelector._remove_reader = patched_remove_reader
+
 import gradio as gr
 import os
 from rag_engine import RAGHelper
 
 # Pre-initialize RAG on Startup to avoid latency
-def initialize_rag(model_name: str = "gemini-2.5-flash"):
+def initialize_rag(model_name: str = "gemini-2.0-flash"):
     print(f"--- Initializing RAG Engine with {model_name} ---")
     if not os.path.exists("chroma_db_v4"):
         if os.environ.get("GOOGLE_API_KEY"):
@@ -37,7 +54,8 @@ rag_solver = None
 
 def get_solver(model_name: str = "gemini-2.5-flash"):
     global rag_solver
-    if rag_solver is None or rag_solver.model_name != model_name:
+    # Ensure model names match (careful with version strings)
+    if rag_solver is None or rag_solver.model_name not in [model_name, "gemini-2.0-flash"]:
         print(f"Switching model to {model_name}...")
         try:
             rag_solver = RAGHelper(model_name=model_name)
@@ -47,7 +65,6 @@ def get_solver(model_name: str = "gemini-2.5-flash"):
 
 def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
     # 1. Configuration
-    # Prioritize UI input, then env var
     if google_key:
         os.environ["GOOGLE_API_KEY"] = google_key
     
@@ -63,51 +80,44 @@ def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
     # 2. Initialize / Get Engine
     solver = get_solver(model_name)
     if not solver:
-        # Try re-init if key was just provided
         try:
             global rag_solver
-            rag_solver = RAGHelper()
+            rag_solver = RAGHelper(model_name=model_name)
             solver = rag_solver
         except Exception as e:
             yield f"❌ System Error: Failed to initialize AI Engine. {e}"
             return
 
     # 3. Generate Response
-    # Convert history for RAG context (list of dicts or tuples? rag_engine expects dicts)
-    # Gradio history is [[user, bot], [user, bot]]
+    # Gradio 'history' with type="messages"
     chat_history_dicts = []
     for item in history:
         if isinstance(item, dict):
-            # Format: {"role": "user", "content": "..."}
-            chat_history_dicts.append(item)
+             chat_history_dicts.append(item)
         elif isinstance(item, (list, tuple)) and len(item) >= 2:
-            # Format: [user_msg, bot_msg]
             chat_history_dicts.append({"role": "user", "content": item[0]})
             chat_history_dicts.append({"role": "assistant", "content": item[1]})
     
     try:
         response_generator = solver.get_response_stream(message, chat_history_dicts)
-        
         partial_response = ""
         for chunk in response_generator:
             partial_response += chunk
             yield partial_response
-            
     except Exception as e:
         yield f"❌ Error during generation: {str(e)}"
 
 # --- UI Setup ---
-with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
+with gr.Blocks(title="TechSolutions Support AI v1.1.0", theme=gr.themes.Soft()) as demo:
     gr.Markdown("# 🤖 TechSolutions Customer Support AI v1.1.0")
     gr.Markdown("Create support tickets on GitHub, query manuals, and get help 24/7.")
     
-    # Define inputs for the ChatInterface
     with gr.Accordion("⚙️ Settings & API Configuration", open=False):
         google_key_input = gr.Textbox(
             label="Google API Key",
             placeholder="AIza... (Optional if Secret is set)",
             type="password",
-            info="Required for Gemini 2.0 Flash and Embeddings."
+            info="Required for Gemini models and Embeddings."
         )
         gh_token_input = gr.Textbox(
             label="GitHub Token",
@@ -124,19 +134,15 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
             choices=["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash-preview"],
             value="gemini-2.5-flash",
             label="AI Model Selection",
-            info="Select the Gemini model to use for the response."
+            info="Select the Gemini model to use."
         )
 
-    # Define the Chatbot with ChatGPT-style buttons (Gradio 5+)
+    # Define the Chatbot
     chatbot_comp = gr.Chatbot(
-        placeholder="### � TechSolutions Support Assistant\nAsk about documentation, create tickets, or get company info.",
-        height=500,
-        examples=[
-            {"text": "How do I use decimal floating point in Python?"},
-            {"text": "Create a support ticket. My email is user@example.com and the issue is 'Connection timeout'."},
-            {"text": "Who do you work for and what is your contact info?"},
-            {"text": "What does the tutorial say about defining functions?"}
-        ]
+        placeholder="### 🛟 TechSolutions Support Assistant\nAsk about documentation, create tickets, or get company info.",
+        height=550,
+        type="messages",
+        render=False # We render it inside ChatInterface
     )
 
     chat_interface = gr.ChatInterface(
@@ -144,6 +150,14 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
         chatbot=chatbot_comp,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
         textbox=gr.Textbox(placeholder="Ask a question or request a support ticket...", container=False, scale=7),
+        # In Gradio 5, when additional_inputs are used, examples must match the input signature
+        examples=[
+            ["How do I use decimal floating point in Python?", "", "", "", "gemini-2.5-flash"],
+            ["Who do you work for and what is your contact info?", "", "", "", "gemini-2.5-flash"],
+            ["What does the tutorial say about defining functions?", "", "", "", "gemini-2.5-flash"],
+            ["Create a support ticket. My email is user@email.com and the issue is 'Timeout'.", "", "", "", "gemini-2.5-flash"]
+        ],
+        type="messages",
         cache_examples=False,
     )
     
