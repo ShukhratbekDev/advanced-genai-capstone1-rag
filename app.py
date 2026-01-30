@@ -128,13 +128,16 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
                 info="Select the Gemini model to use for the response."
             )
 
+    gr.Markdown("### 💡 Quick Tips:\n- Use the examples below the chat to get started quickly.\n- To create a GitHub ticket, mention your email and the issue details.")
+
     chat_interface = gr.ChatInterface(
         fn=chat_logic,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
+        textbox=gr.Textbox(placeholder="Ask a question about the documentation or request a support ticket...", container=False, scale=7),
         examples=[
             ["How do I use decimal floating point in Python?", "", "", "", "gemini-2.5-flash"],
             ["What does the tutorial say about defining functions?", "", "", "", "gemini-2.5-flash"],
-            ["I have a bug in my code. Please create a support ticket for me. My name is Alex, email alex@example.com, and the issue is 'List index out of range'.", "", "", "", "gemini-2.5-flash"],
+            ["I'd like to create a support ticket. My email is user@example.com and the issue is 'Connection timeout'.", "", "", "", "gemini-2.5-flash"],
             ["Who do you work for and what is your contact info?", "", "", "", "gemini-2.5-flash"]
         ],
         cache_examples=False,
