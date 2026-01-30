@@ -120,11 +120,12 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
         fn=chat_logic,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input],
         examples=[
-            ["How do I use decimal floating point in Python?"],
-            ["What does the tutorial say about defining functions?"],
-            ["I have a bug in my code. Please create a support ticket for me. My name is Alex, email alex@example.com, and the issue is 'List index out of range'."],
-            ["Who do you work for and what is your contact info?"]
-        ]
+            ["How do I use decimal floating point in Python?", "", "", ""],
+            ["What does the tutorial say about defining functions?", "", "", ""],
+            ["I have a bug in my code. Please create a support ticket for me. My name is Alex, email alex@example.com, and the issue is 'List index out of range'.", "", "", ""],
+            ["Who do you work for and what is your contact info?", "", "", ""]
+        ],
+        cache_examples=False,
     )
     
     # Customizing ChatInterface is tricky with additional inputs being dynamic properly.

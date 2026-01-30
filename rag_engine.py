@@ -51,7 +51,10 @@ def create_support_ticket(user_name: str, user_email: str, issue_summary: str, i
         
         return f"Success! GitHub Issue created: {issue.html_url} (Issue #{issue.number})"
     except Exception as e:
-        return f"Failed to create GitHub issue: {str(e)}"
+        error_msg = str(e)
+        if "403" in error_msg:
+             return f"Failed to create GitHub issue: 403 Forbidden. This usually means your GITHUB_TOKEN is missing the 'repo' or 'issues' write scope. Please check your token settings."
+        return f"Failed to create GitHub issue: {error_msg}"
 
 # --- 2. RAG Chain Setup ---
 class RAGHelper:
