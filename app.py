@@ -166,7 +166,8 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     # Simplified Chatbot
     chatbot_comp = gr.Chatbot(
         placeholder="### 🛟 TechSolutions Support Assistant\nAsk about documentation, create tickets, or get company info.",
-        height=550
+        height=550,
+        show_label=False
     )
 
     # ChatGPT-style suggestions (buttons above the input)
@@ -178,8 +179,9 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
 
     chat_input = gr.Textbox(
         placeholder="Ask a question or request a support ticket...", 
-        container=True, # MUST be True to show buttons
-        scale=7
+        container=True,
+        scale=7,
+        show_label=False
     )
 
     chat_interface = gr.ChatInterface(
@@ -189,12 +191,6 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
         textbox=chat_input,
         submit_btn="✈️",
         stop_btn="⏹️",
-        examples=[
-            ["How do I use decimal floating point in Python?", None, None, None, "gemini-2.5-flash"],
-            ["Who do you work for and what is your contact info?", None, None, None, "gemini-2.5-flash"],
-            ["What does the tutorial say about defining functions?", None, None, None, "gemini-2.5-flash"],
-            ["Create a support ticket. My email is user@email.com and the issue is 'Timeout'.", None, None, None, "gemini-2.5-flash"]
-        ],
         cache_examples=False,
     )
 
