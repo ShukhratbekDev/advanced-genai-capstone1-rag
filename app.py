@@ -244,9 +244,6 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
         textbox=chat_input,
         submit_btn="✈️ Send",
         stop_btn="⏹️ Stop",
-        retry_btn="🔄 Retry",
-        undo_btn="↩️ Undo",
-        clear_btn="🗑️ Clear",
         cache_examples=False,
     )
 
