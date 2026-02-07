@@ -190,14 +190,7 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
 
     # Chatbot Interface
     chatbot_comp = gr.Chatbot(
-        placeholder="""
-        <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🛟</div>
-            <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">TechSolutions Support Assistant</h3>
-            <p style="margin-bottom: 0.5rem;">Ask about documentation, create tickets, or get company info.</p>
-            <p style="font-size: 0.875rem; color: var(--text-muted);">Powered by RAG technology for accurate, context-aware responses</p>
-        </div>
-        """,
+        placeholder="🛟 **TechSolutions Support Assistant**\n\nAsk about documentation, create tickets, or get company info.\n\nPowered by RAG technology for accurate, context-aware responses.",
         height=550,
         show_label=False,
         avatar_images=(None, "🤖"),
