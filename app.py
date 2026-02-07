@@ -143,13 +143,7 @@ except FileNotFoundError:
     print("Warning: custom_styles.css not found. Using default styles.")
 
 
-# Create theme for Gradio 6.0
-custom_theme = gr.themes.Soft(
-    primary_hue="indigo",
-    secondary_hue="purple",
-    neutral_hue="slate",
-    font=gr.themes.GoogleFont("Inter"),
-)
+# Use default Soft theme - custom styling via CSS only
 
 with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     # Header Section
@@ -263,6 +257,6 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     
 if __name__ == "__main__":
     initialize_rag()
-    # Gradio 6.0: theme and css moved to launch()
-    demo.launch(theme=custom_theme, css=custom_css, ssr_mode=False)
+    # Launch with CSS styling only (theme causes compatibility issues)
+    demo.launch(css=custom_css, ssr_mode=False)
 
