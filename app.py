@@ -134,76 +134,144 @@ def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
         yield f"❌ Error during generation: {str(e)}"
 
 # --- UI Setup ---
-with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
-    gr.Markdown("# 🤖 TechSolutions Customer Support AI v1.1.0")
-    gr.Markdown("Create support tickets on GitHub, query manuals, and get help 24/7.")
-    
-    with gr.Accordion("⚙️ Settings & API Configuration", open=False):
-        google_key_input = gr.Textbox(
-            label="Google API Key",
-            placeholder="AIza... (Optional if Secret is set)",
-            type="password",
-            info="Required for Gemini models and Embeddings."
-        )
-        gh_token_input = gr.Textbox(
-            label="GitHub Token",
-            placeholder="ghp_... (Optional)",
-            type="password",
-            info="Needed only for creating support tickets."
-        )
-        gh_repo_input = gr.Textbox(
-            label="GitHub Repo",
-            placeholder="username/repo (Optional)",
-            info="Format: 'owner/repository'"
-        )
-        model_dropdown = gr.Dropdown(
-            choices=["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash-preview"],
-            value="gemini-2.5-flash",
-            label="AI Model Selection",
-            info="Select the Gemini model to use."
-        )
+# Load custom CSS
+custom_css = """
+<style>
+"""
+try:
+    with open("custom_styles.css", "r") as f:
+        custom_css += f.read()
+except FileNotFoundError:
+    print("Warning: custom_styles.css not found. Using default styles.")
+custom_css += """
+</style>
+"""
 
-    # Simplified Chatbot
+with gr.Blocks(
+    title="TechSolutions Support AI v1.1.0",
+    css=custom_css,
+    theme=gr.themes.Soft(
+        primary_hue="indigo",
+        secondary_hue="purple",
+        neutral_hue="slate",
+        font=["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+    )
+) as demo:
+    # Header Section
+    gr.HTML("""
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="margin-bottom: 0.5rem;">🤖 TechSolutions Customer Support AI</h1>
+            <p style="font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                Powered by Advanced RAG Technology & Gemini AI
+            </p>
+            <p style="font-size: 0.95rem; color: var(--text-muted);">
+                💬 Query documentation • 🎫 Create support tickets • 🔍 Get instant answers • 🌐 24/7 availability
+            </p>
+        </div>
+    """)
+    
+    # Settings Accordion
+    with gr.Accordion("⚙️ Settings & API Configuration", open=False):
+        with gr.Row():
+            with gr.Column(scale=1):
+                google_key_input = gr.Textbox(
+                    label="🔑 Google API Key",
+                    placeholder="AIza... (Optional if Secret is set)",
+                    type="password",
+                    info="Required for Gemini models and Embeddings."
+                )
+                gh_token_input = gr.Textbox(
+                    label="🔐 GitHub Token",
+                    placeholder="ghp_... (Optional)",
+                    type="password",
+                    info="Needed only for creating support tickets."
+                )
+            with gr.Column(scale=1):
+                gh_repo_input = gr.Textbox(
+                    label="📦 GitHub Repository",
+                    placeholder="username/repo (Optional)",
+                    info="Format: 'owner/repository'"
+                )
+                model_dropdown = gr.Dropdown(
+                    choices=["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash-preview"],
+                    value="gemini-2.5-flash",
+                    label="🤖 AI Model Selection",
+                    info="Select the Gemini model to use."
+                )
+
+    # Chatbot Interface
     chatbot_comp = gr.Chatbot(
-        placeholder="### 🛟 TechSolutions Support Assistant\nAsk about documentation, create tickets, or get company info.",
+        placeholder="""
+        <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🛟</div>
+            <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">TechSolutions Support Assistant</h3>
+            <p style="margin-bottom: 0.5rem;">Ask about documentation, create tickets, or get company info.</p>
+            <p style="font-size: 0.875rem; color: var(--text-muted);">Powered by RAG technology for accurate, context-aware responses</p>
+        </div>
+        """,
         height=550,
-        show_label=False
+        show_label=False,
+        avatar_images=(None, "🤖"),
+        bubble_full_width=False,
     )
 
-    # ChatGPT-style suggestions (buttons above the input)
-    with gr.Row():
-        suggestion_1 = gr.Button("Floating point in Python?", size="sm", variant="secondary")
-        suggestion_2 = gr.Button("Create support ticket", size="sm", variant="secondary")
-        suggestion_3 = gr.Button("Company contact info", size="sm", variant="secondary")
-        suggestion_4 = gr.Button("Defining functions", size="sm", variant="secondary")
+    # Quick Action Suggestions
+    gr.HTML("""
+        <div style="margin: 1.5rem 0 0.75rem 0;">
+            <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+                💡 Quick Actions
+            </p>
+        </div>
+    """)
+    
+    with gr.Row(elem_classes="suggestion-row"):
+        suggestion_1 = gr.Button("🐍 Floating point in Python?", size="sm", variant="secondary")
+        suggestion_2 = gr.Button("🎫 Create support ticket", size="sm", variant="secondary")
+        suggestion_3 = gr.Button("📞 Company contact info", size="sm", variant="secondary")
+        suggestion_4 = gr.Button("📚 Defining functions", size="sm", variant="secondary")
 
+    # Chat Input
     chat_input = gr.Textbox(
-        placeholder="Ask a question or request a support ticket...", 
+        placeholder="💬 Ask a question or request a support ticket...", 
         container=True,
         scale=7,
         show_label=False
     )
 
+    # Chat Interface
     chat_interface = gr.ChatInterface(
         fn=chat_logic,
         chatbot=chatbot_comp,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
         textbox=chat_input,
-        submit_btn="✈️",
-        stop_btn="⏹️",
+        submit_btn="✈️ Send",
+        stop_btn="⏹️ Stop",
+        retry_btn="🔄 Retry",
+        undo_btn="↩️ Undo",
+        clear_btn="🗑️ Clear",
         cache_examples=False,
     )
 
     # Wire up the suggestion buttons
-    def set_example(text):
-        return text
-
     suggestion_1.click(fn=lambda: "How do I use decimal floating point in Python?", outputs=chat_input)
     suggestion_2.click(fn=lambda: "Create a support ticket. My email is user@email.com and the issue is 'Timeout'.", outputs=chat_input)
     suggestion_3.click(fn=lambda: "Who do you work for and what is your contact info?", outputs=chat_input)
     suggestion_4.click(fn=lambda: "What does the tutorial say about defining functions?", outputs=chat_input)
     
+    # Footer
+    gr.HTML("""
+        <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <p style="font-size: 0.875rem; color: var(--text-muted);">
+                Built with ❤️ using LangChain, ChromaDB, and Google Gemini AI
+            </p>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+                v1.1.0 • Advanced RAG Capstone Project
+            </p>
+        </div>
+    """)
+    
 if __name__ == "__main__":
     initialize_rag()
-    # Move theme to launch to resolve Gradio 5+ warning and disable SSR for stability
-    demo.launch(theme=gr.themes.Soft(), ssr_mode=False)
+    # SSR disabled for stability with Python 3.13+ asyncio patches
+    demo.launch(ssr_mode=False)
+
