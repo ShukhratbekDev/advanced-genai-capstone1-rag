@@ -143,80 +143,81 @@ except FileNotFoundError:
     print("Warning: custom_styles.css not found. Using default styles.")
 
 
-# Use default Soft theme - custom styling via CSS only
+# Use default theme - custom styling via CSS only
 
 with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     # Header Section
     gr.HTML("""
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <h1 style="margin-bottom: 0.5rem;">🤖 TechSolutions Customer Support AI</h1>
-            <p style="font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+        <div class="header-container">
+            <h1 class="app-title">🤖 TechSolutions Customer Support AI</h1>
+            <p class="subtitle">
                 Powered by Advanced RAG Technology & Gemini AI
-            </p>
-            <p style="font-size: 0.95rem; color: var(--text-muted);">
-                💬 Query documentation • 🎫 Create support tickets • 🔍 Get instant answers • 🌐 24/7 availability
             </p>
         </div>
     """)
+
     
     # Settings Accordion
     with gr.Accordion("⚙️ Settings & API Configuration", open=False):
         with gr.Row():
             with gr.Column(scale=1):
                 google_key_input = gr.Textbox(
-                    label="🔑 Google API Key",
+                    label="Google API Key",
                     placeholder="AIza... (Optional if Secret is set)",
                     type="password",
                     info="Required for Gemini models and Embeddings."
                 )
                 gh_token_input = gr.Textbox(
-                    label="🔐 GitHub Token",
+                    label="GitHub Token",
                     placeholder="ghp_... (Optional)",
                     type="password",
                     info="Needed only for creating support tickets."
                 )
             with gr.Column(scale=1):
                 gh_repo_input = gr.Textbox(
-                    label="📦 GitHub Repository",
+                    label="GitHub Repository",
                     placeholder="username/repo (Optional)",
                     info="Format: 'owner/repository'"
                 )
                 model_dropdown = gr.Dropdown(
                     choices=["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash-preview"],
                     value="gemini-2.5-flash",
-                    label="🤖 AI Model Selection",
+                    label="AI Model Selection",
                     info="Select the Gemini model to use."
                 )
 
     # Chatbot Interface
-    chatbot_comp = gr.Chatbot(
-        placeholder="🛟 **TechSolutions Support Assistant**\n\nAsk about documentation, create tickets, or get company info.\n\nPowered by RAG technology for accurate, context-aware responses.",
-        height=550,
-        show_label=False,
-        avatar_images=(None, "🤖"),
-    )
+    with gr.Column(elem_classes=["group-container"]):
+        chatbot_comp = gr.Chatbot(
+            placeholder="**TechSolutions Support Assistant**\n\nAsk about documentation, create tickets, or get company info.",
+            height=600,
+            show_label=False,
+            avatar_images=(None, "🤖"),
+            elem_classes=["chatbot"]
+        )
 
     # Quick Action Suggestions
     gr.HTML("""
-        <div style="margin: 1.5rem 0 0.75rem 0;">
-            <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
-                💡 Quick Actions
+        <div style="margin: 1.5rem 0 0.5rem 0;">
+            <p style="font-size: 0.9rem; font-weight: 600; color: var(--neutral-500);">
+                💡 Suggested Actions
             </p>
         </div>
     """)
     
-    with gr.Row(elem_classes="suggestion-row"):
-        suggestion_1 = gr.Button("🐍 Floating point in Python?", size="sm", variant="secondary")
-        suggestion_2 = gr.Button("🎫 Create support ticket", size="sm", variant="secondary")
-        suggestion_3 = gr.Button("📞 Company contact info", size="sm", variant="secondary")
-        suggestion_4 = gr.Button("📚 Defining functions", size="sm", variant="secondary")
+    with gr.Row():
+        suggestion_1 = gr.Button("🐍 Floating point in Python?", size="sm", elem_classes=["suggestion-btn"])
+        suggestion_2 = gr.Button("🎫 Create support ticket", size="sm", elem_classes=["suggestion-btn"])
+        suggestion_3 = gr.Button("📞 Company contact info", size="sm", elem_classes=["suggestion-btn"])
+        suggestion_4 = gr.Button("📚 Defining functions", size="sm", elem_classes=["suggestion-btn"])
 
     # Chat Input
     chat_input = gr.Textbox(
-        placeholder="💬 Ask a question or request a support ticket...", 
+        placeholder="Type your question here...", 
         container=True,
         scale=7,
-        show_label=False
+        show_label=False,
+        lines=1
     )
 
     # Chat Interface
@@ -225,8 +226,8 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
         chatbot=chatbot_comp,
         additional_inputs=[google_key_input, gh_token_input, gh_repo_input, model_dropdown],
         textbox=chat_input,
-        submit_btn="✈️ Send",
-        stop_btn="⏹️ Stop",
+        submit_btn="Send",
+        stop_btn="Stop",
         cache_examples=False,
     )
 
@@ -238,18 +239,14 @@ with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     
     # Footer
     gr.HTML("""
-        <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-            <p style="font-size: 0.875rem; color: var(--text-muted);">
-                Built with ❤️ using LangChain, ChromaDB, and Google Gemini AI
-            </p>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
-                v1.1.0 • Advanced RAG Capstone Project
-            </p>
+        <div class="footer">
+            <p>Built with LangChain, ChromaDB, and Google Gemini AI • v1.1.0</p>
         </div>
     """)
     
 if __name__ == "__main__":
     initialize_rag()
-    # Launch with CSS styling only (theme causes compatibility issues)
+    # Launch with SSR disabled for stability
     demo.launch(css=custom_css, ssr_mode=False)
+
 
