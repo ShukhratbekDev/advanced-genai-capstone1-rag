@@ -148,7 +148,7 @@ custom_theme = gr.themes.Soft(
     primary_hue="indigo",
     secondary_hue="purple",
     neutral_hue="slate",
-    font=["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+    font=gr.themes.GoogleFont("Inter"),
 )
 
 with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
