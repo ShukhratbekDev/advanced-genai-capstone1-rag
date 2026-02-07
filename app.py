@@ -134,18 +134,14 @@ def chat_logic(message, history, google_key, gh_token, gh_repo, model_name):
         yield f"❌ Error during generation: {str(e)}"
 
 # --- UI Setup ---
-# Load custom CSS
-custom_css = """
-<style>
-"""
+# Load custom CSS (raw CSS content, no HTML tags)
+custom_css = ""
 try:
     with open("custom_styles.css", "r") as f:
-        custom_css += f.read()
+        custom_css = f.read()
 except FileNotFoundError:
     print("Warning: custom_styles.css not found. Using default styles.")
-custom_css += """
-</style>
-"""
+
 
 # Create theme for Gradio 6.0
 custom_theme = gr.themes.Soft(
