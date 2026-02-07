@@ -147,16 +147,15 @@ custom_css += """
 </style>
 """
 
-with gr.Blocks(
-    title="TechSolutions Support AI v1.1.0",
-    css=custom_css,
-    theme=gr.themes.Soft(
-        primary_hue="indigo",
-        secondary_hue="purple",
-        neutral_hue="slate",
-        font=["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-    )
-) as demo:
+# Create theme for Gradio 6.0
+custom_theme = gr.themes.Soft(
+    primary_hue="indigo",
+    secondary_hue="purple",
+    neutral_hue="slate",
+    font=["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+)
+
+with gr.Blocks(title="TechSolutions Support AI v1.1.0") as demo:
     # Header Section
     gr.HTML("""
         <div style="text-align: center; margin-bottom: 2rem;">
@@ -212,7 +211,6 @@ with gr.Blocks(
         height=550,
         show_label=False,
         avatar_images=(None, "🤖"),
-        bubble_full_width=False,
     )
 
     # Quick Action Suggestions
@@ -272,6 +270,6 @@ with gr.Blocks(
     
 if __name__ == "__main__":
     initialize_rag()
-    # SSR disabled for stability with Python 3.13+ asyncio patches
-    demo.launch(ssr_mode=False)
+    # Gradio 6.0: theme and css moved to launch()
+    demo.launch(theme=custom_theme, css=custom_css, ssr_mode=False)
 
